@@ -93,12 +93,14 @@
     }
     .products {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 20px;
       margin-top: 30px;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
+      width: 100%;
+      box-sizing: border-box;
     }
     .product {
       background: #fff;
@@ -110,6 +112,9 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .product:hover {
       transform: translateY(-5px);
@@ -161,6 +166,7 @@
     .contact {
       margin-top: 40px;
       text-align: center;
+      display: none;
     }
     .contact-buttons {
       display: flex;
@@ -197,15 +203,107 @@
       background: white;
       color: #667eea;
     }
+    /* Floating Action Button */
+    .fab-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .fab-main {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      color: #667eea;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .fab-main:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+    .fab-main.active {
+      background: #f8f9fa;
+      transform: rotate(45deg);
+    }
+    .fab-buttons {
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    .fab-buttons.show {
+      display: flex;
+    }
+    .fab-button-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .fab-button-label {
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .fab-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      color: white;
+      flex-shrink: 0;
+    }
+    .fab-button.call-btn {
+      background: white;
+      color: #667eea;
+    }
+    .fab-button.whatsapp-btn {
+      background: #25D366;
+      color: white;
+    }
+    .fab-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
     @media (max-width: 768px) {
       body {
         padding: 10px;
       }
       .products {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-top: 20px;
         padding: 0 5px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .product {
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       .header {
         margin-bottom: 20px;
@@ -263,6 +361,28 @@
         justify-content: center;
         padding: 12px 25px;
         font-size: 16px;
+      }
+      .fab-container {
+        bottom: 15px;
+        right: 15px;
+      }
+      .fab-main {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+      .fab-button {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+      }
+      .fab-buttons {
+        bottom: 65px;
+        gap: 12px;
+      }
+      .fab-button-label {
+        font-size: 12px;
+        padding: 5px 10px;
       }
     }
   </style>
@@ -990,6 +1110,27 @@
     </div>
   </div>
 
+  <!-- Floating Action Button -->
+  <div class="fab-container">
+    <div class="fab-buttons" id="fabButtons">
+      <div class="fab-button-wrapper">
+        <span class="fab-button-label">Call</span>
+        <a href="tel:+919726641926" class="fab-button call-btn" title="Call">
+          📞
+        </a>
+      </div>
+      <div class="fab-button-wrapper">
+        <span class="fab-button-label">WhatsApp</span>
+        <a href="https://wa.me/919726641926" class="fab-button whatsapp-btn" target="_blank" title="WhatsApp">
+          💬
+        </a>
+      </div>
+    </div>
+    <button class="fab-main" id="fabMain" aria-label="Contact Options">
+      📞
+    </button>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const images = document.querySelectorAll('.product img');
@@ -1061,6 +1202,26 @@
       
       // Initialize - show all products
       performSearch();
+      
+      // Floating Action Button functionality
+      const fabMain = document.getElementById('fabMain');
+      const fabButtons = document.getElementById('fabButtons');
+      
+      if (fabMain && fabButtons) {
+        fabMain.addEventListener('click', function() {
+          fabMain.classList.toggle('active');
+          fabButtons.classList.toggle('show');
+        });
+        
+        // Close FAB when clicking outside
+        document.addEventListener('click', function(event) {
+          const isClickInsideFab = fabMain.contains(event.target) || fabButtons.contains(event.target);
+          if (!isClickInsideFab && fabButtons.classList.contains('show')) {
+            fabMain.classList.remove('active');
+            fabButtons.classList.remove('show');
+          }
+        });
+      }
     });
   </script>
 </body>
